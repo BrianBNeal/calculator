@@ -1,8 +1,3 @@
-//example: 10 + 12
-//first operand is 10
-//operator is +
-//second operand is 12
-
 const calculator = {
     displayValue: '0',
     firstOperand: null,
@@ -24,17 +19,16 @@ const inputDigit = (digit) => {
     } else {
         calculator.displayValue = displayValue === '0' ? digit : displayValue + digit;
     }
-
-    console.log(calculator);
-
 }
 
 const inputDecimal = (decimal) => {
     const { displayValue } = calculator;
+
+    if (calculator.waitingForSecondOperand) return;
+
     if (!displayValue.includes(decimal)) {
         calculator.displayValue += decimal;
     }
-    console.log(calculator);
 }
 
 const allClear = () => {
@@ -42,17 +36,23 @@ const allClear = () => {
     calculator.firstOperand = null;
     calculator.waitingForSecondOperand = false;
     calculator.operator = null;
-    console.log(calculator);
 }
 
 const handleOperator = (nextOperator) => {
     const { firstOperand, displayValue, operator } = calculator;
     const inputValue = parseFloat(displayValue);
 
+    if (operator && calculator.waitingForSecondOperand) {
+        calculator.operator = nextOperator;
+        return;
+    }
+
     if (firstOperand === null) {
         calculator.firstOperand = inputValue;
     } else if (operator) {
-        const result = performCalculation[operator](firstOperand, inputValue);
+        const currentValue = firstOperand || 0;
+
+        const result = performCalculation[operator](currentValue, inputValue);
 
         calculator.displayValue = String(result);
         calculator.firstOperand = result;
@@ -60,8 +60,6 @@ const handleOperator = (nextOperator) => {
 
     calculator.waitingForSecondOperand = true;
     calculator.operator = nextOperator;
-
-    console.log(calculator);
 }
 
 const performCalculation = {
