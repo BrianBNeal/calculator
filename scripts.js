@@ -4,15 +4,34 @@
 //second operand is 12
 
 const calculator = {
-    displayValue: '0', //string representing user input or result of operation
-    firstOperand: null, //first operand for any expression
-    waitingForSecondOperand: false, //a boolean to show if an expression should be evaluated
-    operator: null //the operator for an expression
+    displayValue: '0',
+    firstOperand: null,
+    waitingForSecondOperand: false,
+    operator: null
 }
 
 const updateDisplay = () => {
     const display = document.querySelector('.calculator-screen');
     display.value = calculator.displayValue;
+}
+
+const inputDigit = (digit) => {
+    const { displayValue } = calculator;
+    calculator.displayValue = displayValue === '0' ? digit : displayValue + digit;
+}
+
+const inputDecimal = (decimal) => {
+    const { displayValue } = calculator;
+    if (!displayValue.includes(decimal)) {
+        calculator.displayValue += decimal;
+    }
+}
+
+const allClear = () => {
+    calculator.displayValue = '0';
+    calculator.firstOperand = null;
+    calculator.waitingForSecondOperand = false;
+    calculator.operator = null;
 }
 
 const keys = document.querySelector('.calculator-keys');
@@ -35,22 +54,11 @@ keys.addEventListener('click', (event) => {
     }
 
     if (target.classList.contains('all-clear')) {
-        console.log('clear', target.value);
+        allClear();
+        updateDisplay();
         return;
     }
 
     inputDigit(target.value);
     updateDisplay();
 })
-
-const inputDigit = (digit) => {
-    const {displayValue} = calculator;
-    calculator.displayValue = displayValue ==='0' ? digit : displayValue + digit;
-}
-
-const inputDecimal = (decimal) => {
-    const {displayValue} = calculator;
-    if (!displayValue.includes(decimal)) {
-        calculator.displayValue += decimal;
-    }
-}
