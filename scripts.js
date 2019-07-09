@@ -16,8 +16,17 @@ const updateDisplay = () => {
 }
 
 const inputDigit = (digit) => {
-    const { displayValue } = calculator;
-    calculator.displayValue = displayValue === '0' ? digit : displayValue + digit;
+    const { displayValue, waitingForSecondOperand } = calculator;
+
+    if (waitingForSecondOperand) {
+        calculator.displayValue = digit;
+        calculator.waitingForSecondOperand = false;
+    } else {
+        calculator.displayValue = displayValue === '0' ? digit : displayValue + digit;
+    }
+
+    console.log(calculator);
+
 }
 
 const inputDecimal = (decimal) => {
@@ -25,6 +34,7 @@ const inputDecimal = (decimal) => {
     if (!displayValue.includes(decimal)) {
         calculator.displayValue += decimal;
     }
+    console.log(calculator);
 }
 
 const allClear = () => {
@@ -32,6 +42,34 @@ const allClear = () => {
     calculator.firstOperand = null;
     calculator.waitingForSecondOperand = false;
     calculator.operator = null;
+    console.log(calculator);
+}
+
+const handleOperator = (nextOperator) => {
+    const { firstOperand, displayValue, operator } = calculator;
+    const inputValue = parseFloat(displayValue);
+
+    if (firstOperand === null) {
+        calculator.firstOperand = inputValue;
+    } else if (operator) {
+        const result = performCalculation[operator](firstOperand, inputValue);
+
+        calculator.displayValue = String(result);
+        calculator.firstOperand = result;
+    }
+
+    calculator.waitingForSecondOperand = true;
+    calculator.operator = nextOperator;
+
+    console.log(calculator);
+}
+
+const performCalculation = {
+    '/': (firstOperand, secondOperand) => firstOperand / secondOperand,
+    '*': (firstOperand, secondOperand) => firstOperand * secondOperand,
+    '+': (firstOperand, secondOperand) => firstOperand + secondOperand,
+    '-': (firstOperand, secondOperand) => firstOperand - secondOperand,
+    '=': (firstOperand, secondOperand) => secondOperand
 }
 
 const keys = document.querySelector('.calculator-keys');
@@ -43,7 +81,8 @@ keys.addEventListener('click', (event) => {
     }
 
     if (target.classList.contains('operator')) {
-        console.log('operator', target.value);
+        handleOperator(target.value);
+        updateDisplay();
         return;
     }
 
